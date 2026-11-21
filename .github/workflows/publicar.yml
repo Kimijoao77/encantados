@@ -52,7 +52,8 @@ jobs:
           git add assets PEDIDOS_DE_ARTE.md
           if ! git diff --cached --quiet; then
             git commit -m "🎨 Arte processada automaticamente"
-            git push
+            git pull --rebase origin main
+            git push origin HEAD:main
           fi
 
       - name: Montar site
