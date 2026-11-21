@@ -36,12 +36,18 @@ O jogo salva sozinho ao trocar de mapa e depois das batalhas. Dá para salvar pe
 
 ## 🎨 Arte
 
-A arte atual é **provisória**, gerada por código. A arte final vem do ChatGPT/Gemini:
+Os Encantados são **modelados em 3D no Blender** e renderizados como sprites (frente, costas e miniatura).
+Os modelos são feitos por código, em "massinha digital": cada criatura é uma lista de formas que se fundem (ver `ferramentas/blender/modelos.py`).
 
-1. Abra o arquivo [PEDIDOS_DE_ARTE.md](PEDIDOS_DE_ARTE.md). Ele tem um prompt pronto para cada criatura.
-2. Gere a imagem, salve com o nome indicado (ex.: `guarito.png`).
-3. Envie para a pasta `arte_bruta/criaturas/` (no GitHub: **Add file → Upload files**).
-4. O GitHub Actions padroniza a imagem (tira o fundo, reduz para 64x64, ajusta a paleta) e publica o jogo de novo sozinho.
+```bash
+pip install bpy scikit-image pillow numpy
+python3 ferramentas/blender/render.py guarito --previa   # prévia rápida em /tmp/previa
+python3 ferramentas/blender/render.py guarito ariri      # gera os sprites finais em assets/criaturas/
+python3 ferramentas/blender/render.py --todos
+```
+
+Quem ainda não tem modelo 3D aparece com a arte provisória em pixel art, gerada por código.
+Também dá para usar imagens do ChatGPT/Gemini: veja [PEDIDOS_DE_ARTE.md](PEDIDOS_DE_ARTE.md) e envie para `arte_bruta/criaturas/`.
 
 Para ver todas as criaturas de uma vez: abra o jogo com **`?galeria`** no fim do endereço.
 
@@ -56,7 +62,7 @@ src/dados/                 criaturas, golpes, tipos, itens, mapas e eventos (his
 src/arte/procedural.js     arte provisória gerada por código
 assets/                    arte final processada + manifest.json
 arte_bruta/                imagens originais do GPT/Gemini (entrada do script)
-ferramentas/               processar_arte.py, gerar_pedidos.mjs
+ferramentas/               blender/ (modelos 3D e render), processar_arte.py, gerar_pedidos.mjs
 testes/                    testes automáticos (npm test)
 ```
 

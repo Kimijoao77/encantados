@@ -34,7 +34,7 @@ Salve como `<nome>_costas.png` (ex.: `guarito_costas.png`).
 
 ## Iniciais (prioridade máxima)
 
-### 001 · Guarito — Fogo  ⬜ falta
+### 001 · Guarito — Fogo  ✅ já tem arte
 Arquivo: `arte_bruta/criaturas/guarito.png`
 
 ```
@@ -64,7 +64,7 @@ Personalidade: Dizem que seu uivo acende fogueiras a quilômetros de distância.
 Siga o estilo base: pixel art estilo GBA, vista 3/4 virada para a esquerda, fundo branco liso.
 ```
 
-### 004 · Ariri — Água  ⬜ falta
+### 004 · Ariri — Água  ✅ já tem arte
 Arquivo: `arte_bruta/criaturas/ariri.png`
 
 ```
@@ -94,7 +94,7 @@ Personalidade: A guardiã dos rios. Quando bate a cauda na água, provoca uma po
 Siga o estilo base: pixel art estilo GBA, vista 3/4 virada para a esquerda, fundo branco liso.
 ```
 
-### 007 · Brotojabi — Planta  ⬜ falta
+### 007 · Brotojabi — Planta  ✅ já tem arte
 Arquivo: `arte_bruta/criaturas/brotojabi.png`
 
 ```

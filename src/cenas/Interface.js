@@ -9,7 +9,7 @@ import { TIPOS } from '../dados/tipos.js';
 import { calcularStats, nomeDe, pvMax, xpParaNivel } from '../motor/criatura.js';
 import { NOMES_STATUS } from '../motor/batalha.js';
 import { motivoNaoUsar, aplicarItem } from '../motor/usoItens.js';
-import { caixa, estilo, barraPV, seloTipo } from '../ui/desenho.js';
+import { caixa, estilo, barraPV, seloTipo, criatura } from '../ui/desenho.js';
 
 const W = 720, H = 480;
 const CAIXA = { x: 8, y: 356, w: 704, h: 118 };
@@ -159,7 +159,7 @@ class TelaTime extends Widget {
       const fundo = !mon ? 0x5a7a8a : mon.pv <= 0 ? 0xd8a0a0 : troca ? 0xf8e080 : sel ? 0xb8e0f8 : 0xf8f8f0;
       this.add(caixa(s, x, y, 340, 96, { fundo, filete: null, borda: sel ? 0xf05050 : 0x384858 }).setDepth(41));
       if (!mon) continue;
-      this.add(s.add.image(x + 46, y + 48, 'criatura_' + mon.especie).setScale(1.1).setDepth(42));
+      this.add(criatura(s, x + 46, y + 48, mon.especie, 1.1).setDepth(42));
       this.add(s.add.text(x + 92, y + 12, nomeDe(mon), estilo(22)).setDepth(42));
       this.add(s.add.text(x + 250, y + 12, 'Nv' + mon.nivel, estilo(20)).setDepth(42));
       const b = barraPV(s, x + 92, y + 50, 200, 10); b.g.setDepth(42); this.add(b.g); b.definir(mon.pv / pvMax(mon));
@@ -229,7 +229,7 @@ class TelaFicha extends Widget {
     const st = calcularStats(mon);
     this.add(s.add.rectangle(W / 2, H / 2, W, H, 0x2a3a4a).setDepth(60));
     this.add(caixa(s, 12, 12, 300, 300, { fundo: 0xe0f0f8 }).setDepth(61));
-    this.add(s.add.image(162, 150, 'criatura_' + mon.especie).setScale(3.4).setDepth(62));
+    this.add(criatura(s, 162, 150, mon.especie, 3.4).setDepth(62));
     this.add(s.add.text(30, 26, `Nº${String(e.num).padStart(3, '0')}`, estilo(18, '#5a6a7a')).setDepth(62));
     this.add(caixa(s, 12, 318, 300, 154).setDepth(61));
     this.add(s.add.text(30, 334, nomeDe(mon), estilo(28)).setDepth(62));
@@ -361,7 +361,7 @@ class TelaCaderno extends Widget {
       const x = 12 + (n % 4) * 175, y = 74 + Math.floor(n / 4) * 126;
       const visto = estado.vistos[c.id], pego = estado.capturados[c.id];
       this.add(caixa(s, x, y, 168, 118, { fundo: k === this.i ? 0xf8e8a0 : 0xf0e8d0, filete: null, borda: k === this.i ? 0xf05050 : 0x384858 }).setDepth(41));
-      const img = this.add(s.add.image(x + 84, y + 50, 'criatura_' + c.id).setScale(1.1).setDepth(42));
+      const img = this.add(criatura(s, x + 84, y + 50, c.id, 1.1).setDepth(42));
       if (!visto) img.setTintFill(0x384858);
       this.add(s.add.text(x + 12, y + 8, String(c.num).padStart(3, '0'), estilo(15, '#5a6a7a')).setDepth(42));
       if (pego) this.add(s.add.image(x + 148, y + 18, 'icone_patua').setScale(1.4).setDepth(42));
@@ -400,8 +400,8 @@ class TelaEvolucao extends Widget {
     const s = ui;
     this.add(s.add.rectangle(W / 2, H / 2, W, H, 0x101820).setDepth(70));
     this.raios = this.add(s.add.graphics().setDepth(70));
-    this.antes = this.add(s.add.image(W / 2, 190, 'criatura_' + de).setScale(3.5).setDepth(71));
-    this.depois = this.add(s.add.image(W / 2, 190, 'criatura_' + para).setScale(3.5).setDepth(71).setAlpha(0));
+    this.antes = this.add(criatura(s, W / 2, 190, de, 3.5).setDepth(71));
+    this.depois = this.add(criatura(s, W / 2, 190, para, 3.5).setDepth(71).setAlpha(0));
     this.t = 0;
     this.relogio = s.time.addEvent({ delay: 33, loop: true, callback: () => this.desenharRaios(33) });
   }
@@ -536,7 +536,7 @@ export default class Interface extends Phaser.Scene {
     const c = CRIATURAS[especie];
     const objs = [];
     objs.push(caixa(this, 220, 40, 280, 300, { fundo: 0xe0f0f8 }).setDepth(45));
-    objs.push(this.add.image(360, 170, 'criatura_' + especie).setScale(3.2).setDepth(46));
+    objs.push(criatura(this, 360, 170, especie, 3.2).setDepth(46));
     objs.push(this.add.text(360, 278, c.nome, estilo(28)).setOrigin(0.5).setDepth(46));
     c.tipos.forEach((t, k) => objs.push(seloTipo(this, 360 + (k - (c.tipos.length - 1) / 2) * 110, 316, t, 15).setDepth(46)));
     return () => objs.forEach((o) => o.destroy());

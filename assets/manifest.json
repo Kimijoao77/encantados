@@ -1,3 +1,13 @@
 {
-  "texturas": {}
+  "texturas": {
+    "criatura_guarito": "assets/criaturas/guarito.png",
+    "criatura_guarito_costas": "assets/criaturas/guarito_costas.png",
+    "criatura_guarito_mini": "assets/criaturas/guarito_mini.png",
+    "criatura_ariri": "assets/criaturas/ariri.png",
+    "criatura_ariri_mini": "assets/criaturas/ariri_mini.png",
+    "criatura_ariri_costas": "assets/criaturas/ariri_costas.png",
+    "criatura_brotojabi": "assets/criaturas/brotojabi.png",
+    "criatura_brotojabi_mini": "assets/criaturas/brotojabi_mini.png",
+    "criatura_brotojabi_costas": "assets/criaturas/brotojabi_costas.png"
+  }
 }

@@ -1,6 +1,6 @@
 // Tela de título e introdução do jogo novo.
 import { existeSave, carregar, novoJogo, salvar, apagarSave } from '../motor/estado.js';
-import { estilo } from '../ui/desenho.js';
+import { estilo, criatura } from '../ui/desenho.js';
 import { esperar } from './Interface.js';
 
 const W = 720, H = 480;
@@ -41,7 +41,7 @@ export default class Titulo extends Phaser.Scene {
     }
     // os três iniciais
     ['guarito', 'ariri', 'brotojabi'].forEach((id, i) => {
-      const img = this.add.image(220 + i * 140, 330, 'criatura_' + id).setScale(2).setOrigin(0.5, 1);
+      const img = criatura(this, 220 + i * 140, 330, id, 2).setOrigin(0.5, 1);
       this.tweens.add({ targets: img, y: 320, duration: 500 + i * 80, yoyo: true, repeat: -1, ease: 'Sine.inOut', delay: i * 200 });
     });
     // logo
@@ -88,7 +88,7 @@ export default class Titulo extends Phaser.Scene {
       '...e criaturas das lendas antigas, que aparecem quando a névoa sobe.',
     ]);
     prof.setVisible(false);
-    const amigos = ['capivi', 'gralhita', 'pirili'].map((id, i) => this.add.image(200 + i * 160, 250, 'criatura_' + id).setScale(2.6).setOrigin(0.5, 1).setAlpha(0));
+    const amigos = ['capivi', 'gralhita', 'pirili'].map((id, i) => criatura(this, 200 + i * 160, 250, id, 2.6).setOrigin(0.5, 1).setAlpha(0));
     this.tweens.add({ targets: amigos, alpha: 1, duration: 500 });
     await this.ui.falar([
       'As pessoas que vivem junto com os Encantados, batalham com eles e cuidam deles são chamadas de Encantadores.',

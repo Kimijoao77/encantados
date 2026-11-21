@@ -19,6 +19,11 @@ export default class Boot extends Phaser.Scene {
   }
 
   create() {
+    // A arte renderizada (3D) é suave: usa filtro linear. A arte provisória continua em pixel art.
+    const texturas = this.cache.json.get('manifest')?.texturas || {};
+    for (const chave of Object.keys(texturas)) {
+      if (this.textures.exists(chave)) this.textures.get(chave).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    }
     gerarTudo(this);
     const params = new URLSearchParams(location.search);
     this.scene.launch('Interface');

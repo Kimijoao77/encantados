@@ -1,3 +1,4 @@
+import { criatura } from '../ui/desenho.js';
 import { LISTA_CRIATURAS } from '../dados/criaturas.js';
 import { TIPOS } from '../dados/tipos.js';
 import { Entrada } from '../motor/entrada.js';
@@ -19,7 +20,7 @@ export default class Galeria extends Phaser.Scene {
     lista.forEach((c, i) => {
       const x = 72 + (i % 5) * 144, y = 78 + Math.floor(i / 5) * 140;
       this.add.rectangle(x, y + 6, 132, 128, 0x3a4652).setStrokeStyle(2, 0x56646e);
-      this.add.image(x, y - 6, 'criatura_' + c.id).setScale(1.5);
+      criatura(this, x, y - 6, c.id, 1.5);
       this.add.text(x, y + 46, `${c.num}. ${c.nome}`, { fontFamily: 'Pixelify Sans', fontSize: '17px', color: '#ffffff' }).setOrigin(0.5);
       this.add.text(x, y + 62, c.tipos.map((t) => TIPOS[t].nome).join('/'), { fontFamily: 'Pixelify Sans', fontSize: '13px', color: '#c8d0d8' }).setOrigin(0.5);
     });

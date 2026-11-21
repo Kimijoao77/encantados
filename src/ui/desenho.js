@@ -66,3 +66,16 @@ export function seloTipo(scene, x, y, tipo, tam = 16) {
   c.largura = w;
   return c;
 }
+
+/**
+ * Desenha um Encantado. `escala` é relativa a um sprite de 64 px (escala 3 = 192 px na tela),
+ * então funciona igual para a arte provisória (64 px) e para a arte renderizada (192 px).
+ */
+export function criatura(scene, x, y, id, escala = 1) {
+  const px = 64 * escala;
+  const mini = `criatura_${id}_mini`;
+  const chave = px <= 100 && scene.textures.exists(mini) ? mini : 'criatura_' + id;
+  const img = scene.add.image(x, y, chave);
+  img.setScale(px / img.width);
+  return img;
+}

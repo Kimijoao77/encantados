@@ -14,8 +14,8 @@ import { esperar } from './Interface.js';
 
 const W = 720;
 const POS = {
-  inimigo: { x: 520, y: 206, escala: 3 },
-  jogador: { x: 190, y: 360, escala: 3.6 },
+  inimigo: { x: 520, y: 210, px: 192 },
+  jogador: { x: 190, y: 360, px: 236 },
 };
 const AUTO = 1300; // mensagens de batalha avançam sozinhas depois disso (ou com A)
 
@@ -63,8 +63,8 @@ export default class Batalha extends Phaser.Scene {
     g.fillStyle(0x6aa850); g.fillEllipse(POS.jogador.x, POS.jogador.y, 360, 84);
     g.fillStyle(0x94cc72); g.fillEllipse(POS.jogador.x, POS.jogador.y - 4, 330, 66);
 
-    this.spriteIni = this.add.image(POS.inimigo.x, POS.inimigo.y, 'criatura_capivi').setOrigin(0.5, 1).setScale(POS.inimigo.escala).setVisible(false).setDepth(5);
-    this.spriteJog = this.add.image(POS.jogador.x, POS.jogador.y + 6, 'criatura_capivi').setOrigin(0.5, 1).setScale(POS.jogador.escala).setVisible(false).setDepth(5);
+    this.spriteIni = this.add.image(POS.inimigo.x, POS.inimigo.y, 'criatura_capivi').setOrigin(0.5, 1).setVisible(false).setDepth(5);
+    this.spriteJog = this.add.image(POS.jogador.x, POS.jogador.y + 6, 'criatura_capivi').setOrigin(0.5, 1).setVisible(false).setDepth(5);
   }
 
   texturaDe(mon, lado) {
@@ -199,7 +199,9 @@ export default class Batalha extends Phaser.Scene {
     const { chave, flip } = this.texturaDe(mon, lado);
     s.setTexture(chave).setFlipX(flip).setVisible(true).setScale(0).setTintFill(0xffffff);
     s.setPosition(p.x, lado === 'jogador' ? p.y + 6 : p.y);
-    await new Promise((r) => this.tweens.add({ targets: s, scale: p.escala, duration: 260, ease: 'Back.out', onComplete: r }));
+    const escala = p.px / s.width;
+    s.escalaCheia = escala;
+    await new Promise((r) => this.tweens.add({ targets: s, scale: escala, duration: 260, ease: 'Back.out', onComplete: r }));
     s.clearTint();
   }
 
@@ -226,6 +228,8 @@ export default class Batalha extends Phaser.Scene {
       const mon = this.inimigos[0];
       const { chave } = this.texturaDe(mon, 'inimigo');
       this.spriteIni.setTexture(chave).setVisible(true).setX(POS.inimigo.x + 420).setTint(0x404050);
+      this.spriteIni.escalaCheia = POS.inimigo.px / this.spriteIni.width;
+      this.spriteIni.setScale(this.spriteIni.escalaCheia);
       this.tweens.add({ targets: this.spriteIni, x: POS.inimigo.x, duration: 700, ease: 'Quad.out', onComplete: () => this.spriteIni.clearTint() });
     }
     this.tweens.add({ targets: pj, x: POS.jogador.x, duration: 700, ease: 'Quad.out' });
@@ -541,7 +545,7 @@ export default class Batalha extends Phaser.Scene {
       return true;
     }
     pat.destroy();
-    this.spriteIni.setScale(POS.inimigo.escala);
+    this.spriteIni.setScale(this.spriteIni.escalaCheia);
     this.spriteIni.clearTint();
     this.cameras.main.flash(150, 255, 255, 255);
     const frases = ['Ah, não! Ele escapou!', 'Quase! Parecia que ia pegar!', 'Ahh! Faltou muito pouco!'];
