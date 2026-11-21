@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#101418">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Encantados</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <div id="app">
+    <div id="jogo"></div>
+    <div id="controles" aria-hidden="true">
+      <div id="dpad">
+        <div class="seta" data-dir="cima">▲</div>
+        <div class="seta" data-dir="esq">◀</div>
+        <div class="seta" data-dir="dir">▶</div>
+        <div class="seta" data-dir="baixo">▼</div>
+      </div>
+      <div id="botoes">
+        <div class="botao" id="btn-menu" data-btn="menu">MENU</div>
+        <div class="botao redondo" id="btn-b" data-btn="b">B</div>
+        <div class="botao redondo" id="btn-a" data-btn="a">A</div>
+      </div>
+    </div>
+    <div id="nome-overlay" hidden>
+      <form id="nome-form">
+        <label for="nome-input">Qual é o seu nome?</label>
+        <input id="nome-input" maxlength="10" autocomplete="off" spellcheck="false">
+        <button type="submit">OK</button>
+      </form>
+    </div>
+    <div id="carregando">Carregando Encantados...</div>
+  </div>
+  <script src="lib/phaser.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "encantados",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Encantados — jogo de capturar e batalhar com criaturas brasileiras",
+  "scripts": {
+    "test": "node --test testes/*.test.js"
+  }
+}

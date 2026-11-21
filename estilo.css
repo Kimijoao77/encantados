@@ -1,0 +1,172 @@
+@font-face {
+  font-family: 'Pixelify Sans';
+  src: url('fontes/pixelify-sans-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Pixelify Sans';
+  src: url('fontes/pixelify-sans-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #101418;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Pixelify Sans', monospace;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#jogo {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+#jogo canvas { image-rendering: pixelated; }
+
+#carregando {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8e0c8;
+  font-size: 22px;
+}
+
+/* ── Controles de toque ─────────────────────────── */
+#controles { display: none; }
+
+@media (pointer: coarse) {
+  #controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 22px calc(18px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+}
+
+@media (pointer: coarse) and (orientation: portrait) {
+  #jogo { flex: 0 0 auto; height: 66.67vw; margin-top: env(safe-area-inset-top); }
+  #controles { flex: 1 1 auto; background: #1a2026; }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  #jogo { width: auto; margin: 0 150px; }
+  #controles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    align-items: flex-end;
+    padding: 0 calc(10px + env(safe-area-inset-right)) 14px calc(10px + env(safe-area-inset-left));
+  }
+  #controles > * { pointer-events: auto; opacity: 0.55; }
+  #dpad { transform: scale(0.85); transform-origin: bottom left; }
+  #botoes { transform: scale(0.85); transform-origin: bottom right; }
+}
+
+#dpad {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  flex: 0 0 auto;
+}
+.seta {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  background: #3a4450;
+  color: #c8d0d8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border-radius: 8px;
+  box-shadow: 0 4px 0 #22282f;
+}
+.seta[data-dir="cima"]  { left: 56px; top: 0; }
+.seta[data-dir="baixo"] { left: 56px; top: 112px; }
+.seta[data-dir="esq"]   { left: 0; top: 56px; }
+.seta[data-dir="dir"]   { left: 112px; top: 56px; }
+.seta.ativa, .botao.ativa { filter: brightness(1.5); transform: translateY(3px); box-shadow: 0 1px 0 #22282f; }
+
+#botoes {
+  position: relative;
+  width: 190px;
+  height: 168px;
+  flex: 0 0 auto;
+}
+.botao {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #22282f;
+}
+.redondo { width: 72px; height: 72px; border-radius: 50%; font-size: 28px; }
+#btn-a { right: 0; top: 30px; background: #c0384a; }
+#btn-b { right: 92px; top: 76px; background: #4a6ab0; }
+#btn-menu {
+  left: 10px; top: 0;
+  padding: 6px 14px;
+  border-radius: 14px;
+  background: #3a4450;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+/* ── Caixa para digitar o nome ──────────────────── */
+#nome-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 18, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+#nome-overlay[hidden] { display: none; }
+#nome-form {
+  background: #f8f8f0;
+  border: 4px solid #384858;
+  border-radius: 10px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 260px;
+}
+#nome-form label { font-size: 22px; color: #283038; }
+#nome-form input {
+  font: inherit;
+  font-size: 24px;
+  padding: 8px 10px;
+  border: 3px solid #384858;
+  border-radius: 6px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+#nome-form button {
+  font: inherit;
+  font-size: 22px;
+  padding: 8px;
+  background: #c0384a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}

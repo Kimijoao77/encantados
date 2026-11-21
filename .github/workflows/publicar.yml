@@ -1,0 +1,68 @@
+name: Publicar jogo
+
+# Roda a cada push na main:
+#  1. processa a arte nova que estiver em arte_bruta/ (tira fundo, 64x64, paleta)
+#  2. roda os testes e atualiza PEDIDOS_DE_ARTE.md
+#  3. publica o jogo no GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Processar arte nova
+        run: |
+          pip install --quiet pillow
+          python ferramentas/processar_arte.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Testes e pedidos de arte
+        run: |
+          npm test
+          node ferramentas/gerar_pedidos.mjs
+
+      - name: Salvar arte processada no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets PEDIDOS_DE_ARTE.md
+          if ! git diff --cached --quiet; then
+            git commit -m "🎨 Arte processada automaticamente"
+            git push
+          fi
+
+      - name: Montar site
+        run: |
+          mkdir _site
+          cp -r index.html estilo.css lib fontes src assets _site/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
