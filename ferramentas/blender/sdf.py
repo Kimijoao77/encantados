@@ -71,9 +71,10 @@ def smax(a, b, k):
 
 # ── partes ────────────────────────────────────────────────
 class Parte:
-    def __init__(self, tipo, cor, k, camada, modo, dados, escala=None, borda=0.0):
+    def __init__(self, tipo, cor, k, camada, modo, dados, escala=None, borda=0.0, pelo=None):
         self.tipo, self.k, self.camada, self.modo, self.d = tipo, k, camada, modo, dados
-        self.cor = cor if callable(cor) else hexrgb(cor)
+        self.cor = cor if (callable(cor) or cor is None) else hexrgb(cor)
+        self.pelo = pelo  # comprimento relativo do pelo nesta parte (None = não mexe; sólidos usam 1)
         self.escala = None if escala is None else np.asarray(escala, dtype=np.float32)
         self.borda = borda  # largura da transição de cor (0 = borda seca)
 
@@ -124,10 +125,10 @@ class Modelo:
         self.partes = []
         self.olhos = []
 
-    def _add(self, tipo, cor, k, camada, modo, dados, sym, escala, borda):
-        self.partes.append(Parte(tipo, cor, k, camada, modo, dados, escala, borda))
+    def _add(self, tipo, cor, k, camada, modo, dados, sym, escala, borda, pelo=None):
+        self.partes.append(Parte(tipo, cor, k, camada, modo, dados, escala, borda, pelo))
         if sym:
-            self.partes.append(Parte(tipo, cor, k, camada, modo, self._espelhar(tipo, dados), escala, borda))
+            self.partes.append(Parte(tipo, cor, k, camada, modo, self._espelhar(tipo, dados), escala, borda, pelo))
 
     @staticmethod
     def _espelhar(tipo, d):
@@ -138,32 +139,33 @@ class Modelo:
             return {'c': c, 'r': d['r'], 'rot': rot, 'R': matriz_rot(rot)}
         return {'pts': d['pts'] * np.array([1, -1, 1], dtype=np.float32), 'rs': d['rs']}
 
-    def bola(self, c, r, cor, rot=(0, 0, 0), k=0.06, sym=False, camada='corpo', modo='solido', escala=None, borda=0.0):
+    def bola(self, c, r, cor, rot=(0, 0, 0), k=0.06, sym=False, camada='corpo', modo='solido', escala=None, borda=0.0, pelo=None):
         """Elipsoide. r pode ser um número ou (rx, ry, rz). rot em graus (x, y, z)."""
         r = np.full(3, r, dtype=np.float32) if np.isscalar(r) else np.asarray(r, dtype=np.float32)
         dados = {'c': np.asarray(c, dtype=np.float32), 'r': r, 'rot': tuple(rot), 'R': matriz_rot(rot)}
-        self._add('elipsoide', cor, k, camada, modo, dados, sym, escala, borda)
+        self._add('elipsoide', cor, k, camada, modo, dados, sym, escala, borda, pelo)
         return self
 
-    def tubo(self, pts, rs, cor, k=0.06, sym=False, camada='corpo', modo='solido', escala=None, borda=0.0):
+    def tubo(self, pts, rs, cor, k=0.06, sym=False, camada='corpo', modo='solido', escala=None, borda=0.0, pelo=None):
         """Tubo passando pelos pontos, com um raio em cada ponto (pernas, caudas, focinhos, chifres)."""
         pts = np.asarray(pts, dtype=np.float32)
         rs = [float(rs)] * len(pts) if np.isscalar(rs) else [float(x) for x in rs]
-        self._add('tubo', cor, k, camada, modo, {'pts': pts, 'rs': rs}, sym, escala, borda)
+        self._add('tubo', cor, k, camada, modo, {'pts': pts, 'rs': rs}, sym, escala, borda, pelo)
         return self
 
-    def pinta(self, c, r, cor, rot=(0, 0, 0), sym=False, camada='corpo', borda=0.0):
-        """Pinta a superfície que estiver dentro deste elipsoide (manchas, barriga, meias)."""
-        return self.bola(c, r, cor, rot=rot, sym=sym, camada=camada, modo='pinta', borda=borda)
+    def pinta(self, c, r, cor, rot=(0, 0, 0), sym=False, camada='corpo', borda=0.0, pelo=None):
+        """Pinta a superfície que estiver dentro deste elipsoide (manchas, barriga, meias).
+        cor=None com pelo=x muda só o comprimento do pelo naquela região."""
+        return self.bola(c, r, cor, rot=rot, sym=sym, camada=camada, modo='pinta', borda=borda, pelo=pelo)
 
-    def pinta_tubo(self, pts, rs, cor, sym=False, camada='corpo', borda=0.0):
-        return self.tubo(pts, rs, cor, sym=sym, camada=camada, modo='pinta', borda=borda)
+    def pinta_tubo(self, pts, rs, cor, sym=False, camada='corpo', borda=0.0, pelo=None):
+        return self.tubo(pts, rs, cor, sym=sym, camada=camada, modo='pinta', borda=borda, pelo=pelo)
 
     def corta(self, c, r, rot=(0, 0, 0), k=0.03, sym=False, camada='corpo', cor='#3a1418'):
         """Escava a forma (boca aberta, narinas). A cor vale para o interior do corte."""
         return self.bola(c, r, cor, rot=rot, k=k, sym=sym, camada=camada, modo='corta')
 
-    def olho(self, c, r, sym=True, cor='#1a1210', brilho=True, iris=None, rot=(0, 0, 0)):
+    def olho(self, c, r, sym=True, cor='#140e0c', brilho=True, iris='#7a4a1e', rot=(0, 0, 0)):
         """Olho brilhante. c = centro, r = raio ou (rx, ry, rz)."""
         r3 = (r, r, r) if np.isscalar(r) else tuple(r)
         self.olhos.append({'c': tuple(c), 'r': r3, 'cor': cor, 'brilho': brilho, 'iris': iris, 'rot': tuple(rot)})
@@ -194,12 +196,22 @@ class Modelo:
         return d
 
     def cores(self, V, camada):
+        """Retorna (cores Nx3, pelo N) nos vértices."""
         cor = np.zeros((len(V), 3), dtype=np.float32)
+        pelo = np.ones(len(V), dtype=np.float32)
         d = np.full(len(V), 1e9, dtype=np.float32)
         for p in self.partes:
             if p.camada != camada:
                 continue
             di = p.dist(V)
+            if p.modo == 'pinta' and p.pelo is not None:
+                wp = np.clip(0.5 - di / 0.05, 0, 1)
+                pelo = pelo * (1 - wp) + p.pelo * wp
+            if p.cor is None:
+                continue
+            if p.modo == 'solido':
+                wp = np.clip(0.5 + 0.5 * (d - di) / 0.06, 0, 1)
+                pelo = pelo * (1 - wp) + (1.0 if p.pelo is None else p.pelo) * wp
             ci = p.cor_em(V)
             if p.modo == 'pinta':
                 w = (di < 0).astype(np.float32) if p.borda <= 0 else np.clip(0.5 - di / p.borda, 0, 1)
@@ -209,7 +221,7 @@ class Modelo:
                 w = (di < d).astype(np.float32) if p.borda <= 0 else np.clip(0.5 + 0.5 * (d - di) / p.borda, 0, 1)
                 d = smin(d, di, p.k)
             cor = cor * (1 - w[:, None]) + ci * w[:, None]
-        return cor
+        return cor, pelo
 
     def malha(self, camada, n=150):
         """Retorna (vertices, faces, cores) da camada."""
@@ -226,4 +238,8 @@ class Modelo:
             campo[i] = self.campo(P, camada).reshape(dims[1], dims[2])
         v, f, _, _ = measure.marching_cubes(campo, level=0.0, spacing=(passo, passo, passo))
         v = (v + lo).astype(np.float32)
-        return v, f[:, ::-1].copy(), self.cores(v, camada)
+        cores, pelo = self.cores(v, camada)
+        vol = np.einsum("ij,ij->i", v[f[:, 0]], np.cross(v[f[:, 1]], v[f[:, 2]])).sum()
+        if vol < 0:  # garante as faces viradas para fora (o pelo nasce na direção da normal)
+            f = f[:, ::-1].copy()
+        return v, f, cores, pelo
